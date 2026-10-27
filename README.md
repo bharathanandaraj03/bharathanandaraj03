@@ -52,13 +52,17 @@ without catching more.
 
 ### [deep_eval_llm_evaluation_framework](https://github.com/bharathanandaraj03/deep_eval_llm_evaluation_framework)
 
-Regression tests for LLM applications, built on DeepEval. Two apps under test: a tool-calling agent, and a
-RAG HR assistant (BM25 retrieval over policy documents, Claude generation, FastAPI endpoint).
+Regression tests for LLM applications, built on DeepEval. Three apps under test: a tool-calling agent; a
+RAG HR assistant (BM25 retrieval over policy documents, Claude generation, FastAPI endpoint) that also
+answers questions about uploaded receipt images; and an MCP (Model Context Protocol) server with five HR
+tools, driven by a Claude agent.
 
 | | |
 |---|---|
-| **Suites** | RAG quality · multi-turn conversation · agent tool correctness · safety and scope |
-| **Metrics** | 16, each with a documented threshold |
+| **Suites** | RAG quality · multi-turn conversation · multimodal (image) · agent tool correctness · MCP tool use · safety and scope |
+| **Metrics** | 19, each with a documented threshold, including custom G-Eval rubrics for PII, role violation, scope refusal and receipt grounding |
+| **Multimodal** | Receipt images go to the judge with the question; the grounding rubric checks vendor, amount and category were read from the image and the right expense policy applied |
+| **MCP** | Contract tests on tool schemas, safety annotations and side effects (no LLM calls); evals on the agent's tool choice, where calling a tool when none is expected scores 0 |
 | **Judges** | Pinned by model and version, so scores don't drift when the framework changes its default |
 | **CI** | Unit tests on every push; evals on pull requests; HTML report published as an artifact |
 
@@ -67,6 +71,23 @@ RAG HR assistant (BM25 retrieval over policy documents, Claude generation, FastA
 *The gate catching a real retrieval failure: contextual relevancy at 0.17 against a 0.7 threshold, with the
 judge's reasoning recorded next to every metric. Failed cases sort first and open expanded — a report
 nobody has to go archaeology through is a report people actually read.*
+
+![Multimodal eval report — the receipt image shown above the bot's answer and the judge's scores](https://raw.githubusercontent.com/bharathanandaraj03/deep_eval_llm_evaluation_framework/main/assets/multimodal-eval-report.png)
+
+*Multimodal cases render the input image above the output, so a reviewer sees exactly what the judge saw.*
+
+### [ragas_eval_automated_framework](https://github.com/bharathanandaraj03/ragas_eval_automated_framework)
+
+RAG evaluation built on RAGAS, against a separate stack: LangChain, Qdrant vector search and OpenAI
+generation over a six-document product knowledge base. *In progress.*
+
+| | |
+|---|---|
+| **Golden set** | 30 schema-validated questions, tagged by failure type: fact · numeric · multi-hop · negative · conflicting sources · out-of-scope |
+| **Metrics** | Faithfulness · answer relevancy · context precision · context recall · factual correctness |
+| **Scoring** | Each metric gets only the fields it needs; out-of-scope questions are scored on the refusal alone, not on retrieval that had nothing to find |
+| **Reporting** | Means overall and per tag, so a multi-hop weakness isn't averaged away by easy fact lookups; per-row CSV per run |
+| **Resilience** | Concurrent judge calls behind a semaphore; one failed judge call is recorded, not fatal to the run |
 
 ### [Playwright_Automated_Test_Framework](https://github.com/bharathanandaraj03/Playwright_Automated_Test_Framework)
 
@@ -87,8 +108,9 @@ TypeScript Playwright framework covering UI and API layers.
 |---|---|
 | **Classifiers** | Confusion matrix, sensitivity / specificity / PPV / NPV, prevalence, AUC; per-condition rather than aggregate, with case-level rollup from image-level results |
 | **Generation** | promptfoo, DeepEval, G-Eval, faithfulness, hallucination, summarisation; BLEU / BERTScore for drift, never for gating |
-| **RAG** | Contextual precision, contextual recall, contextual relevancy, answer relevancy |
-| **Agents** | Task completion, tool correctness, argument correctness, plan adherence, step efficiency — trajectory, not just final answer |
+| **RAG** | DeepEval and RAGAS: contextual precision, contextual recall, contextual relevancy, answer relevancy, factual correctness; broken down by question type |
+| **Multimodal** | Image-grounded answers judged with the image in the test case; custom rubrics for what must be read from the image |
+| **Agents** | Task completion, tool correctness, argument correctness, plan adherence, step efficiency, MCP tool use — trajectory, not just final answer |
 | **Conversational** | Knowledge retention, role adherence, conversation completeness and relevancy |
 | **In CI** | pytest-native gates with documented per-metric thresholds, pinned judge models, unit tests split from evals to control cost, reports published as build artifacts |
 
@@ -146,7 +168,7 @@ Test engineer → automation architect → engineering manager, staying hands-on
 diagnostic AI; UK retail banking, including PSD2 Strong Customer Authentication and Open Banking work whose
 stress-test results went to the FCA; insurance; rail traffic management.
 
-**Building with** — Python · Playwright · pytest · Selenium · DeepEval · promptfoo · Docker · GitHub Actions ·
+**Building with** — Python · Playwright · pytest · Selenium · DeepEval · RAGAS · promptfoo · LangChain · Qdrant · MCP · Docker · GitHub Actions ·
 Jenkins · Azure DevOps · AWS · Azure · SQL
 
 **Domain** — DICOM · PACS · diagnostic AI · LLM and agent evaluation · regulated delivery
