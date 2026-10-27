@@ -79,7 +79,7 @@ nobody has to go archaeology through is a report people actually read.*
 ### [ragas_eval_automated_framework](https://github.com/bharathanandaraj03/ragas_eval_automated_framework)
 
 RAG evaluation built on RAGAS, against a separate stack: LangChain, Qdrant vector search and OpenAI
-generation over a six-document product knowledge base. *In progress.*
+generation over a six-document product knowledge base.
 
 | | |
 |---|---|
@@ -87,7 +87,9 @@ generation over a six-document product knowledge base. *In progress.*
 | **Metrics** | Faithfulness · answer relevancy · context precision · context recall · factual correctness |
 | **Scoring** | Each metric gets only the fields it needs; out-of-scope questions are scored on the refusal alone, not on retrieval that had nothing to find |
 | **Reporting** | Means overall and per tag, so a multi-hop weakness isn't averaged away by easy fact lookups; per-row CSV per run |
+| **Gate** | Thresholds in YAML at three levels: overall mean per metric, mean per tag (out-of-scope refusals held to a higher bar), and a cap on the judge-call error rate, so a run that silently lost its judges can't pass |
 | **Resilience** | Concurrent judge calls behind a semaphore; one failed judge call is recorded, not fatal to the run |
+| **CI** | Lint and offline tests on every push and pull request, with no API key needed; the paid full regression run and gate are run separately |
 
 ### [Playwright_Automated_Test_Framework](https://github.com/bharathanandaraj03/Playwright_Automated_Test_Framework)
 
