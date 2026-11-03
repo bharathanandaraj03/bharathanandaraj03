@@ -91,6 +91,24 @@ generation over a six-document product knowledge base.
 | **Resilience** | Concurrent judge calls behind a semaphore; one failed judge call is recorded, not fatal to the run |
 | **CI** | Lint and offline tests on every push and pull request, with no API key needed; the paid full regression run and gate are run separately |
 
+### [promptfoo_llm_evaluation](https://github.com/bharathanandaraj03/promptfoo_llm_evaluation)
+
+Agent evaluation built on promptfoo: a tool-calling customer-support agent (Claude, `get_order` /
+`refund_order`) scored on its final answer and on its trajectory.
+
+| | |
+|---|---|
+| **Cases** | Happy path · refund requires lookup first · refuse refund for undelivered order · unknown order, no hallucination · prompt injection |
+| **Trajectory** | Deterministic Python asserts: expected tools in order, forbidden tools never called, step efficiency |
+| **Answer** | LLM-as-judge rubric with a pinned Claude judge, plus latency threshold and JSON shape checks |
+| **Stability** | Every case repeated 3 times, so a pass rate exposes flakes a single run hides |
+| **CI** | Manual GitHub Actions run with `repeat` and pass-rate threshold inputs; summary on the job page, HTML report as an artifact |
+
+![promptfoo eval report — per-case pass/fail across repeats](https://raw.githubusercontent.com/bharathanandaraj03/promptfoo_llm_evaluation/main/docs/images/eval-report.png)
+
+*Latest run: 12/15 passed (80%). Both failure causes were traced to the harness, not the agent — a judge
+that sees the answer but not the tool results, and a latency threshold set at the edge of normal runtime.*
+
 ### [Playwright_Automated_Test_Framework](https://github.com/bharathanandaraj03/Playwright_Automated_Test_Framework)
 
 TypeScript Playwright framework covering UI and API layers.
